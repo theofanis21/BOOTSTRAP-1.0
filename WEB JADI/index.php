@@ -1,0 +1,703 @@
+<?php
+$host = "localhost";
+$user = "user20236021";
+$pass = "N1v8Ed";
+$db   = "user20236021";
+
+$conn = mysqli_connect($host, $user, $pass, $db);
+
+if (!$conn) {
+    die("Koneksi gagal: " . mysqli_connect_error());
+}
+
+// --- LOGIKA SIMPAN KRITIK & SARAN ---
+$notif_kritik = "";
+if (isset($_POST['kirim_kritik'])) {
+    $nama_k = mysqli_real_escape_string($conn, $_POST['nama_kritik']);
+    $email_k = mysqli_real_escape_string($conn, $_POST['email_kritik']);
+    $pesan_k = mysqli_real_escape_string($conn, $_POST['pesan_kritik']);
+    
+    $query_k = "INSERT INTO kritik_saran (nama, email, pesan) VALUES ('$nama_k', '$email_k', '$pesan_k')";
+    if (mysqli_query($conn, $query_k)) {
+        header("Location: " . $_SERVER['PHP_SELF'] . "?status=success#faq");
+        exit();
+    } else {
+        header("Location: " . $_SERVER['PHP_SELF'] . "?status=error#faq");
+        exit();
+    }
+}
+
+// Menampilkan notifikasi berdasarkan parameter URL
+if (isset($_GET['status'])) {
+    if ($_GET['status'] == 'success') {
+        $notif_kritik = "<script>alert('Terima kasih! Kritik dan saran Anda telah tersimpan.');</script>";
+    } elseif ($_GET['status'] == 'error') {
+        $notif_kritik = "<script>alert('Gagal menyimpan. Silakan coba lagi.');</script>";
+    }
+}
+
+// Ambil data dari tabel statistik untuk grafik
+$query_chart = mysqli_query($conn, "SELECT kategori, nilai FROM statistik");
+
+$labels = [];
+$values = [];
+
+while ($row = mysqli_fetch_assoc($query_chart)) {
+    $labels[] = $row['kategori'];
+    $values[] = $row['nilai'];
+}
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Website Magang Mahasiswa di KPK</title>
+    
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css"> 
+    <link rel="stylesheet" href="boot.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        section {
+            scroll-margin-top: 70px;
+        }
+        .x-logo-svg {
+            fill: white;
+            width: 18px;
+            height: 18px;
+            vertical-align: middle;
+            transition: opacity 0.3s;
+        }
+        .x-logo-svg:hover {
+            opacity: 0.8;
+        }
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+        .legal-content h6 {
+            color: #910f0f;
+            font-weight: bold;
+            margin-top: 1.5rem;
+        }
+        .legal-content p, .legal-content li {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #333;
+        }
+    </style>
+</head>
+<body data-spy="scroll" data-target="#navbarNav" data-offset="80">
+
+    <?php echo $notif_kritik; ?>
+
+    <header class="custom-header">
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container justify-content-between align-items-center">
+                
+                <a class="navbar-brand logo-box" href="#">
+                    <img src="assets/img/kpk.png" alt="Logo KPK" class="img-fluid logo-image">
+                </a>
+                
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ml-auto"> 
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="#hero">Home</a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="#about">Tentang</a> 
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="#services">Layanan</a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="#faq">Kritik & Saran</a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="#contact">Kontak</a>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </nav>
+    </header>
+
+    <section id="hero" class="hero-section jumbotron jumbotron-fluid mb-0">
+        <div class="container position-relative" style="z-index: 2;">
+            <h1 class="display-4 font-weight-bold">Selamat Datang di Website Resmi</h1>
+            <p class="lead">Komisi Pemberantasan Korupsi (KPK) Republik Indonesia.</p>
+        </div>
+        
+        <div id="heroCarousel" class="carousel slide" data-ride="carousel">
+            <ol class="carousel-indicators">
+                <li data-target="#heroCarousel" data-slide-to="0" class="active"></li>
+                <li data-target="#heroCarousel" data-slide-to="1"></li>
+            </ol>
+            
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="assets/img/hero1.jpg" class="d-block w-100" alt="Slide 1">
+                </div>
+                <div class="carousel-item">
+                    <img src="assets/img/hero2.jpg" class="d-block w-100" alt="Slide 2">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="about" class="py-5 bg-white">
+        <div class="container">
+            <div class="row align-items-center">
+                
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <h2 class="font-weight-bold mb-4" style="color: #910f0f;">Tentang Komisi Pemberantasan Korupsi (KPK)</h2>
+                    <p class="lead text-muted">
+                        KPK adalah lembaga negara independen yang dibentuk berdasarkan Undang-Undang Nomor 30 Tahun 2002. Kami bertugas untuk melakukan pencegahan dan pemberantasan tindak pidana korupsi secara profesional, intensif, dan berkesinambungan.
+                    </p>
+                    <p class="text-secondary">
+                        Mandat utama kami meliputi <strong>koordinasi</strong>, <strong>supervisi</strong>, <strong>penyelidikan, penyidikan, dan penuntutan</strong>, serta <strong>tindakan pencegahan</strong> korupsi di seluruh wilayah Indonesia. Kami bekerja berdasarkan lima asas: kepastian hukum, keterbukaan, akuntabilitas, kepentingan umum, dan proporsionalitas.
+                    </p>
+
+                    <div class="mt-4 p-3 border rounded bg-light">
+                        <h6 class="font-weight-bold text-center mb-3">Statistik Penanganan Kasus</h6>
+                        <canvas id="aboutChart" height="150"></canvas>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card shadow-sm border-0 p-4">
+                        <h4 class="font-weight-bold mb-4">5 Tugas Pokok Utama KPK</h4>
+                        
+                        <div class="d-flex mb-4 align-items-start"> 
+                            <i class="fa fa-handshake-o fa-2x mr-3 text-primary"></i>
+                            <div>
+                                <h5 class="mb-0"><strong>Koordinasi</strong></h5>
+                                <p class="text-muted small mb-0">Mengkoordinasikan penyelidikan, penyidikan, dan penuntutan tindak pidana korupsi.</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex mb-4 align-items-start">
+                            <i class="fa fa-eye fa-2x mr-3 text-primary"></i>
+                            <div>
+                                <h5 class="mb-0"><strong>Supervisi</strong></h5>
+                                <p class="text-muted small mb-0">Melakukan pengawasan terhadap instansi yang berwenang melaksanakan pemberantasan korupsi.</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex mb-4 align-items-start">
+                            <i class="fa fa-search fa-2x mr-3 text-primary"></i>
+                            <div>
+                                <h5 class="mb-0"><strong>Penyelidikan, Penyidikan, & Penuntutan</strong></h5>
+                                <p class="text-muted small mb-0">Melakukan langkah-langkah penegakan hukum terhadap kasus korupsi lintas sektor.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex mb-4 align-items-start">
+                            <i class="fa fa-shield fa-2x mr-3 text-primary"></i>
+                            <div>
+                                <h5 class="mb-0"><strong>Pencegahan</strong></h5>
+                                <p class="text-muted small mb-0">Melakukan tindakan pencegahan agar tidak terjadi tindak pidana korupsi.</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex mb-2 align-items-start"> 
+                            <i class="fa fa-line-chart fa-2x mr-3 text-primary"></i>
+                            <div>
+                                <h5 class="mb-0"><strong>Monitoring</strong></h5>
+                                <p class="text-muted small mb-0">Memantau penyelenggaraan pemerintahan negara dan sistem pengelolaan APBN/APBD.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="services" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center font-weight-bold mb-3" style="color: #910f0f;">Layanan Publik Utama</h2>
+            <p class="text-center text-muted mb-5">
+                Akses cepat ke portal pengaduan dan informasi lelang barang sitaan negara.
+            </p>
+            <div class="row">
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card text-center h-100 shadow-sm p-4 border-danger">
+                        <i class="fa fa-exclamation-triangle fa-4x text-danger mb-3 mx-auto"></i> 
+                        <h5 class="card-title font-weight-bold text-danger">Pengaduan dan Pelaporan</h5>
+                        <p class="card-text text-secondary">Laporkan indikasi tindak pidana korupsi atau penyalahgunaan wewenang dengan aman dan rahasia melalui platform Whistleblowing System (WBS) kami.</p>
+                        <a href="wbs.php" class="btn btn-danger btn-lg mt-auto">Akses WBS Sekarang</a>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card text-center h-100 shadow-sm p-4 border-primary">
+                        <i class="fa fa-gavel fa-4x text-primary mb-3 mx-auto"></i> 
+                        <h5 class="card-title font-weight-bold text-primary">Informasi Pelelangan Barang</h5>
+                        <p class="card-text text-secondary">Akses jadwal, daftar, dan prosedur pelelangan barang sitaan negara. Partisipasi Anda mendukung pengembalian aset negara.</p>
+                        <a href="https://lelang.go.id" class="btn btn-primary btn-lg mt-auto" target="_blank">Cek Jadwal Lelang</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="faq" class="py-5 bg-white">
+        <div class="container">
+            <h2 class="text-center font-weight-bold mb-3" style="color: #910f0f;">Kritik & Saran</h2>
+            <p class="text-center text-muted mb-5">
+                Sampaikan masukan Anda untuk membantu kami meningkatkan kualitas pelayanan publik.
+            </p>
+            <div class="row">
+                
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm p-4 border-danger h-100">
+                        <h5 class="card-title font-weight-bold text-center mb-3"><i class="fa fa-comments text-danger"></i> Formulir Masukan</h5>
+                        <form action="" method="POST" class="small">
+                            <div class="form-group mb-2">
+                                <label class="font-weight-bold">Nama Lengkap</label>
+                                <input type="text" name="nama_kritik" class="form-control form-control-sm" required placeholder="Nama Anda">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label class="font-weight-bold">Email</label>
+                                <input type="email" name="email_kritik" class="form-control form-control-sm" required placeholder="email@contoh.com">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="font-weight-bold">Isi Kritik & Saran</label>
+                                <textarea name="pesan_kritik" class="form-control form-control-sm" rows="5" required placeholder="Tuliskan masukan Anda..."></textarea>
+                            </div>
+                            <button type="submit" name="kirim_kritik" class="btn btn-danger btn-sm btn-block">Simpan Masukan</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card text-center h-100 shadow-sm p-4 border-success">
+                        <i class="fa fa-gift fa-4x text-success mb-3 mx-auto"></i> 
+                        <h5 class="card-title font-weight-bold">Apa itu Gratifikasi?</h5>
+                        <p class="card-text text-secondary">Pemberian dalam arti luas. Pejabat wajib melaporkan gratifikasi yang diterima dalam waktu maksimal 30 hari kerja sejak diterima.</p>
+                        <button type="button" class="btn btn-outline-success mt-auto" data-toggle="modal" data-target="#modalGratifikasi">Detail Gratifikasi</button>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card text-center h-100 shadow-sm p-4 border-warning">
+                        <i class="fa fa-search-plus fa-4x text-warning mb-3 mx-auto"></i>
+                        <h5 class="card-title font-weight-bold">Status Laporan Diproses?</h5>
+                        <p class="card-text text-secondary">Anda akan mendapatkan nomor register unik saat melapor. Status laporan dapat dipantau secara berkala melalui sistem yang disediakan KPK.</p>
+                        <a href="wbs.php" class="btn btn-outline-warning mt-auto">Cek Status Laporan</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="contact" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5 font-weight-bold" style="color: #910f0f;">Hubungi Kami - Saluran Komunikasi Resmi</h2>
+            <div class="row">
+                
+                <div class="col-md-4 mb-4">
+                    <div class="card text-center h-100 shadow-sm border-success">
+                        <div class="card-body d-flex flex-column">
+                            <i class="fa fa-whatsapp fa-3x text-success mb-3"></i> 
+                            <h5 class="card-title font-weight-bold text-success">LAYANAN WHATSAPP</h5>
+                            <p class="card-text">Dapatkan respon tercepat untuk pertanyaan umum atau kebutuhan yang tidak bersifat rahasia.</p>
+                            <div class="mt-auto">
+                                <a href="https://wa.me/628000000000000000" class="btn btn-success btn-lg btn-block" target="_blank">
+                                    <i class="fa fa-whatsapp"></i> Chat Sekarang
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card text-center h-100 shadow-sm border-primary">
+                        <div class="card-body d-flex flex-column">
+                            <i class="fa fa-phone fa-3x text-primary mb-3"></i> 
+                            <h5 class="card-title font-weight-bold text-primary">CALL CENTER (198)</h5>
+                            <p class="card-text">Hubungi Call Center 198 untuk informasi dan pengaduan non-korupsi secara langsung.</p>
+                            <div class="mt-auto">
+                                <a href="tel:198" class="btn btn-primary btn-lg btn-block">
+                                    <i class="fa fa-phone"></i> Hubungi Kami
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card text-center h-100 shadow-sm border-warning">
+                        <div class="card-body d-flex flex-column">
+                            <i class="fa fa-envelope fa-3x text-warning mb-3"></i>
+                            <h5 class="card-title font-weight-bold text-warning">EMAIL INFORMASI</h5>
+                            <p class="card-text">Untuk korespondensi formal, pengiriman dokumen resmi, atau permintaan data publik.</p>
+                            <div class="mt-auto">
+                                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=info@kpk.go.id&su=Pertanyaan%20Informasi%20KPK&body=Halo%20KPK%20RI,%20saya%20ingin%20bertanya%20mengenai..." class="btn btn-warning btn-lg btn-block" target="_blank">
+                                    <i class="fa fa-envelope"></i> Kirim via Gmail
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <footer id="footer" class="py-5 text-white" style="background-color: #333;">
+        <div class="container">
+            <div class="row">
+                
+                <div class="col-md-4 mb-4">
+                    <img src="assets/img/kpk.png" alt="Logo KPK Footer" class="img-fluid mb-3" style="max-width: 120px;">
+                    <p class="small mb-1">
+                        Jl. Kuningan Persada Kav. 4, Guntur, Setiabudi, Jakarta Selatan, DKI Jakarta 12950
+                    </p>
+                    <p class="small mb-1"><i class="fa fa-phone mr-2 text-danger"></i> Call Center: 198</p>
+                    <p class="small mb-1"><i class="fa fa-envelope mr-2 text-danger"></i> info@kpk.go.id</p>
+                    
+                    <div class="social-icons mt-3">
+                        <a href="https://www.facebook.com/KomisiPemberantasanKorupsi" class="text-white mr-3" target="_blank">
+                            <i class="fa fa-facebook fa-lg"></i>
+                        </a>
+
+                        <a href="https://twitter.com/KPK_RI" class="text-white mr-3" target="_blank">
+                            <svg class="x-logo-svg" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                            </svg>
+                        </a>
+
+                        <a href="https://www.instagram.com/official.kpk" class="text-white mr-3" target="_blank">
+                            <i class="fa fa-instagram fa-lg"></i>
+                        </a>
+
+                        <a href="https://youtube.com/@humaskpk?si=XyBR98bMCJGBpRZx" class="text-white" target="_blank">
+                            <i class="fa fa-youtube-play fa-lg"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-2 mb-4">
+                    <h5 class="font-weight-bold mb-3">Navigasi</h5>
+                    <ul class="list-unstyled small">
+                        <li><a href="#about" class="text-white-50">Tentang Kami</a></li>
+                        <li><a href="javascript:void(0)" data-toggle="modal" data-target="#modalStruktur" class="text-white-50">Struktur Organisasi</a></li>
+                        <li><a href="https://maps.app.goo.gl/ARPtt2K6bzmeqYvZ7" target="_blank" class="text-white-50">Peta </a></li>
+                        <li><a href="https://www.kpk.go.id/id/ruang-informasi/berita" target="_blank" class="text-white-50">Berita & Publikasi</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <h5 class="font-weight-bold mb-3">Layanan Utama</h5>
+                    <ul class="list-unstyled small">
+                        <li><a href="javascript:void(0)" class="text-white-50" data-toggle="modal" data-target="#modalLHKPN">LHKPN (Pelaporan Kekayaan)</a></li>
+                        <li><a href="wbs.php" class="text-white-50">WBS (Whistleblowing System)</a></li>
+                        <li><a href="https://lelang.go.id" target="_blank" class="text-white-50">Pelelangan Barang Sitaan</a></li>
+                        <li><a href="javascript:void(0)" class="text-white-50" data-toggle="modal" data-target="#modalEkatalog">E-Katalog</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-md-3 mb-4">
+                    <h5 class="font-weight-bold mb-3">Informasi Legal</h5>
+                    <ul class="list-unstyled small">
+                        <li><a href="javascript:void(0)" class="text-white-50" data-toggle="modal" data-target="#modalPrivasi">Kebijakan Privasi</a></li>
+                        <li><a href="javascript:void(0)" class="text-white-50" data-toggle="modal" data-target="#modalSyarat">Syarat Penggunaan</a></li>
+                        <li><a href="javascript:void(0)" class="text-white-50" data-toggle="modal" data-target="#modalDisclaimer">Disclaimer</a></li>
+                        <li><a href="javascript:void(0)" class="text-white-50" data-toggle="modal" data-target="#modalPengadaan">Pengadaan Barang/Jasa</a></li>
+                    </ul>
+                </div>
+
+            </div>
+            
+            <hr class="bg-light my-4">
+            
+            <div class="row">
+                <div class="col-12 text-center small text-white-50">
+                    © 2026 Komisi Pemberantasan Korupsi Republik Indonesia. Hak Cipta Dilindungi Undang-Undang.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="modal fade" id="modalLHKPN" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title font-weight-bold"><i class="fa fa-briefcase mr-2"></i> Mengenal LHKPN</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>×</span></button>
+                </div>
+                <div class="modal-body legal-content">
+                    <div class="text-center mb-4">
+                        <i class="fa fa-balance-scale fa-4x text-primary"></i>
+                    </div>
+                    <h6>Apa itu LHKPN?</h6>
+                    <p>LHKPN adalah daftar seluruh harta kekayaan Penyelenggara Negara yang dituangkan dalam formulir resmi yang ditetapkan oleh KPK. Laporan ini mencakup harta pribadi, istri/suami, dan anak yang masih dalam tanggungan.</p>
+                    
+                    <h6>Siapa yang Wajib Melapor?</h6>
+                    <ul>
+                        <li>Pejabat Negara pada Lembaga Tertinggi/Tinggi Negara.</li>
+                        <li>Menteri, Gubernur, dan Bupati/Walikota.</li>
+                        <li>Pejabat struktural tertentu di instansi pemerintah dan BUMN/BUMD.</li>
+                        <li>Hakim dan Jaksa.</li>
+                    </ul>
+
+                    <h6>Tujuan Pelaporan</h6>
+                    <p>Sebagai instrumen transparansi dan akuntabilitas untuk mencegah tindak pidana korupsi, serta memantau kewajaran perkembangan kekayaan pejabat publik selama menjabat.</p>
+
+                    <div class="alert alert-primary mt-3">
+                        <strong>Akses Portal:</strong> Pelaporan dilakukan secara online melalui situs <a href="https://elhkpn.kpk.go.id" target="_blank" class="font-weight-bold">elhkpn.kpk.go.id</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalStruktur" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title font-weight-bold"><i class="fa fa-sitemap mr-2"></i> Struktur Organisasi KPK</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>×</span></button>
+                </div>
+                <div class="modal-body legal-content">
+                    <div class="text-center mb-4">
+                        <i class="fa fa-users fa-3x text-primary"></i>
+                    </div>
+                    <h6 class="text-danger font-weight-bold">Dewan Pengawas</h6>
+                    <p>Lembaga non-struktural yang bertugas mengawasi pelaksanaan tugas pimpinan dan pegawai, serta memberikan izin terkait tindakan penyadapan, penggeledahan, dan penyitaan.</p>
+
+                    <h6 class="text-danger font-weight-bold">Kedeputian Utama:</h6>
+                    <ul>
+                        <li><strong>Bidang Pencegahan & Monitoring:</strong> Fokus pada perbaikan sistem birokrasi dan pelayanan publik.</li>
+                        <li><strong>Bidang Penindakan & Eksekusi:</strong> Operasi penyelidikan, penyidikan, dan penuntutan kasus korupsi.</li>
+                        <li><strong>Bidang Koordinasi & Supervisi:</strong> Sinergi dengan aparat penegak hukum lainnya (Kepolisian & Kejaksaan).</li>
+                        <li><strong>Bidang Pendidikan & Peran Serta Masyarakat:</strong> Kampanye budaya antikorupsi dan sosialisasi integritas.</li>
+                    </ul>
+
+                    <h6 class="text-danger font-weight-bold">Sekretariat Jenderal</h6>
+                    <p>Mendukung administrasi, manajemen SDM, keuangan, dan sarana prasarana operasional lembaga.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalPrivasi" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title font-weight-bold"><i class="fa fa-lock mr-2"></i> Kebijakan Privasi</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>×</span></button>
+                </div>
+                <div class="modal-body legal-content">
+                    <h6>1. Komitmen Perlindungan Data</h6>
+                    <p>Kami sangat menghargai kepercayaan Anda. Informasi pribadi yang Anda kirimkan melalui formulir kontak, pengaduan (WBS), atau portal magang akan dijaga kerahasiaannya sesuai dengan standar keamanan nasional dan UU Perlindungan Data Pribadi.</p>
+                    
+                    <h6>2. Jenis Data yang Dikumpulkan</h6>
+                    <p>Kami mengumpulkan data log akses seperti alamat IP untuk keamanan sistem, serta data sukarela yang Anda berikan saat melakukan korespondensi. Data ini tidak akan dijual atau dibagikan kepada pihak ketiga untuk tujuan komersial.</p>
+                    
+                    <h6>3. Keamanan Informasi</h6>
+                    <p>Setiap transmisi data pada portal ini dilindungi oleh enkripsi SSL (Secure Sockets Layer). Kami secara rutin memantau integritas infrastruktur IT kami untuk mencegah upaya akses ilegal oleh pihak yang tidak berwenang.</p>
+                    
+                    <h6>4. Hak Anda atas Data</h6>
+                    <p>Anda berhak meminta klarifikasi mengenai penggunaan data Anda atau meminta penghapusan riwayat korespondensi yang bersifat non-hukum melalui saluran komunikasi resmi kami.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalSyarat" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title font-weight-bold"><i class="fa fa-file-text-o mr-2"></i> Syarat & Ketentuan</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>×</span></button>
+                </div>
+                <div class="modal-body legal-content">
+                    <h6>1. Hak Kekayaan Intelektual</h6>
+                    <p>Seluruh materi di situs ini termasuk logo, grafik, desain, dan teks adalah milik negara yang dikelola oleh KPK. Penggunaan materi untuk tujuan edukasi diizinkan dengan mencantumkan sumber, namun dilarang keras untuk manipulasi data atau tujuan komersial tanpa izin tertulis.</p>
+                    
+                    <h6>2. Batasan Penggunaan</h6>
+                    <p>Pengguna dilarang keras mengirimkan informasi palsu atau laporan fitnah melalui saluran pengaduan. Segala bentuk serangan siber (DDoS, injeksi SQL, dll) terhadap infrastruktur website ini akan diproses secara hukum sesuai UU ITE.</p>
+                    
+                    <h6>3. Perubahan Ketentuan</h6>
+                    <p>KPK berhak untuk mengubah atau memperbarui syarat penggunaan ini kapan saja demi menyesuaikan dengan perkembangan regulasi hukum dan kebijakan instansi tanpa pemberitahuan sebelumnya.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Saya Setuju</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalDisclaimer" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title font-weight-bold"><i class="fa fa-exclamation-circle mr-2"></i> Disclaimer (Sangkalan)</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>×</span></button>
+                </div>
+                <div class="modal-body legal-content">
+                    <div class="alert alert-danger font-weight-bold mb-4">
+                        <i class="fa fa-warning"></i> WASPADA PENIPUAN: SELURUH LAYANAN KPK GRATIS!
+                    </div>
+                    
+                    <h6>1. Akurasi & Validitas Informasi</h6>
+                    <p>Meskipun kami berusaha memberikan informasi yang akurat dan terkini, KPK tidak menjamin bahwa seluruh data bebas dari kesalahan manusiawi. Informasi yang terdapat dalam situs ini disediakan untuk tujuan transparansi publik dan edukasi.</p>
+                    
+                    <h6>2. Tautan Pihak Ketiga</h6>
+                    <p>Website ini mungkin mencantumkan tautan ke situs luar seperti Portal e-LHKPN atau Lelang.go.id. Kami tidak bertanggung jawab atas kebijakan privasi atau ketersediaan konten pada situs pihak ketiga tersebut.</p>
+                    
+                    <h6>3. Penipuan Mengatasnamakan KPK</h6>
+                    <p>KPK menegaskan bahwa kami tidak pernah meminta imbalan dalam bentuk apa pun (uang/barang) untuk pelayanan publik. Kami tidak bertanggung jawab atas kerugian yang timbul akibat transaksi yang dilakukan dengan oknum yang mengaku sebagai pegawai KPK.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Mengerti</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalGratifikasi" tabindex="-1" aria-labelledby="modalGratifikasiLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="modalGratifikasiLabel"><i class="fa fa-gift mr-2"></i> Penjelasan Detail Mengenai Gratifikasi</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="p-2">
+                        <h5 class="font-weight-bold">Apa itu Gratifikasi?</h5>
+                        <p>Menurut UU No. 20 Tahun 2001, gratifikasi adalah pemberian dalam arti luas, yakni meliputi pemberian uang, barang, rabat (diskon), komisi, pinjaman tanpa bunga, tiket perjalanan, fasilitas penginapan, perjalanan wisata, pengobatan cuma-cuma, dan fasilitas lainnya.</p>
+                        <h5 class="font-weight-bold mt-4">Kapan Menjadi Tindak Pidana?</h5>
+                        <p>Gratifikasi kepada pegawai negeri atau penyelenggara negara dianggap sebagai <strong>suap</strong> apabila berhubungan dengan jabatannya dan berlawanan dengan kewajiban atau tugasnya.</p>
+                        <div class="alert alert-warning">
+                            <strong>Penting:</strong> Penerima gratifikasi wajib melaporkan kepada KPK paling lambat <strong>30 hari kerja</strong> terhitung sejak tanggal gratifikasi tersebut diterima.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="https://www.kpk.go.id/id/layanan/gratifikasi" target="_blank" class="btn btn-success">Pelajari di Portal Gratifikasi</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalPengadaan" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title font-weight-bold"><i class="fa fa-briefcase mr-2"></i> Pengadaan Barang & Jasa</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>×</span></button>
+                </div>
+                <div class="modal-body legal-content">
+                    <h6>Layanan Pengadaan Secara Elektronik (LPSE)</h6>
+                    <p>Proses pengadaan barang dan jasa di lingkungan KPK dilakukan secara terbuka melalui sistem elektronik (LPSE).</p>
+                    <div class="alert alert-info mt-3">
+                        Kunjungi Portal Resmi: <a href="https://www.kpk.go.id/id/pengadaan" target="_blank" class="font-weight-bold">lpse.kpk.go.id</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalEkatalog" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title font-weight-bold"><i class="fa fa-shopping-cart mr-2"></i> E-Katalog Sektoral</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>×</span></button>
+                </div>
+                <div class="modal-body legal-content">
+                    <h6>Tentang E-Katalog</h6>
+                    <p>E-Katalog adalah sistem informasi elektronik yang memuat daftar, jenis, spesifikasi teknis, dan harga barang/jasa tertentu.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('.navbar-nav .nav-link').on('click', function(event) {
+                if (this.hash !== "") {
+                    event.preventDefault();
+                    var hash = this.hash;
+
+                    $('html, body').animate({
+                        scrollTop: $(hash).offset().top
+                    }, 800, function(){
+                        window.location.hash = hash;
+                    });
+                }
+            });
+
+            var ctx = document.getElementById('aboutChart').getContext('2d');
+            var aboutChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: <?php echo json_encode($labels); ?>,
+                    datasets: [{
+                        label: 'Persentase Efektivitas (%)',
+                        data: <?php echo json_encode($values); ?>,
+                        backgroundColor: [
+                            'rgba(145, 15, 15, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(40, 167, 69, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(145, 15, 15, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(40, 167, 69, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: true
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
